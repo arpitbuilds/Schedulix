@@ -44,6 +44,7 @@ router.get("/schedule/:teacherId", async (req, res) => {
       "data.teacherId": teacherId,
       isActive: true
     })
+      .populate("data.teacherId", "name")
       .populate("data.roomId", "name")
       .populate("data.subjectId", "name");
 
@@ -55,7 +56,7 @@ router.get("/schedule/:teacherId", async (req, res) => {
       classes: timetable.data.filter(
         entry =>
           entry.teacherId &&
-          entry.teacherId.toString() === teacherId.toString()
+          (entry.teacherId._id ? entry.teacherId._id.toString() : entry.teacherId.toString()) === teacherId.toString()
       )
     }));
 

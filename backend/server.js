@@ -4,11 +4,16 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 import connectDB from "./config/db.js";
-
+import path from "path";
+import { fileURLToPath } from "url";
 import timetableRoutes from "./routes/timetableRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import facultyRoutes from "./routes/facultyRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -65,18 +70,29 @@ const startServer = async () => {
     app.use("/api/timetable", timetableRoutes);
     app.use("/api/admin", adminRoutes);
     app.use("/api/faculty", facultyRoutes);
+    app.use("/api/users", userRoutes);
 
     /* ===============================
-       ❌ 404 HANDLER
+       🌐 STATIC FRONTEND SERVING
     ================================= */
 
-    app.use((req, res) => {
-      res.status(404).json({
-        success: false,
-        message: "Route not found",
-        path: req.originalUrl,
+    if (process.env.NODE_ENV === "production" || process.env.SERVE_STATIC === "true") {
+      app.use(express.static(path.join(__dirname, "../frontend/dist")));
+      app.use((req, res) => {
+        res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
       });
-    });
+    } else {
+      /* ===============================
+         ❌ 404 HANDLER (API ONLY)
+      ================================= */
+      app.use((req, res) => {
+        res.status(404).json({
+          success: false,
+          message: "Route not found",
+          path: req.originalUrl,
+        });
+      });
+    }
 
     /* ===============================
        🛑 GLOBAL ERROR HANDLER

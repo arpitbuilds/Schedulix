@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "../ui/toast/ToastContext.jsx";
 import { socket } from "../api/socket.js";
 
-export function useTimetableSocket(currentDepartment, currentSemester, onUpdate) {
+export function useTimetableSocket(currentDepartment, currentSemester, onUpdate, options = {}) {
   const queryClient = useQueryClient();
   const { push } = useToast();
 
@@ -31,12 +31,14 @@ export function useTimetableSocket(currentDepartment, currentSemester, onUpdate)
         if (action === "generate") actionText = "published";
         if (action === "delete") actionText = "deleted";
 
-        push({
-          variant: "default",
-          title: "Live Update",
-          message: `An administrator just ${actionText} this schedule.`,
-          duration: 5000,
-        });
+        if (!options.suppressToast) {
+          push({
+            variant: "default",
+            title: "Live Update",
+            message: `An administrator just ${actionText} this schedule.`,
+            duration: 5000,
+          });
+        }
 
         if (onUpdate) {
           onUpdate(action);

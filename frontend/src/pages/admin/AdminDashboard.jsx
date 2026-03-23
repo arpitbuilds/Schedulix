@@ -59,6 +59,7 @@ import AdminConstraintsPage from "./AdminConstraintsPage.jsx";
 import AdminGenerateTimetablePage from "./AdminGenerateTimetablePage.jsx";
 import AdminEditEntryPage from "./AdminEditEntryPage.jsx";
 import AdminTimetableLookupPage from "./AdminTimetableLookupPage.jsx";
+import AdminUsersPage from "./AdminUsersPage.jsx";
 
 const NAV_ITEMS = [
   {
@@ -90,6 +91,11 @@ const NAV_ITEMS = [
     to: "constraints",
     label: "Constraints",
     description: "Set timetable rules and limits",
+  },
+  {
+    to: "users",
+    label: "Manage Logins",
+    description: "Provision faculty accounts",
   },
 ];
 
@@ -186,6 +192,7 @@ export default function AdminDashboard() {
           <Route path="subjects" element={<AdminSubjectsPage />} />
           <Route path="rooms" element={<AdminRoomsPage />} />
           <Route path="constraints" element={<AdminConstraintsPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
           <Route path="edit-entry/:entryId" element={<AdminEditEntryPage />} />
         </Routes>
       </div>

@@ -88,6 +88,11 @@ export async function updateTimetableEntry(entryId, body) {
   return resp.data?.data;
 }
 
+export async function moveTimetableEntry(body) {
+  const resp = await http.post(`/api/timetable/move`, body);
+  return resp.data?.data;
+}
+
 export async function deleteTimetable(body) {
   const resp = await http.delete("/api/timetable", { data: body });
   return resp.data;

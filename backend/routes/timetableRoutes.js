@@ -4,6 +4,7 @@ import {
   getTimetable,
   getTimetableByTeacher,
   updateTimetableEntry,
+  moveTimetableEntry,
   deleteTimetable
 } from "../controller/timetableController.js";
 
@@ -43,12 +44,21 @@ router.get(
   getTimetable
 );
 
+router.post(
+  "/move",
+  protect,
+  authorize("admin"),
+  moveTimetableEntry
+);
+
 router.put(
   "/entry/:id",
   protect,
   authorize("admin"),
   updateTimetableEntry
 );
+
+
 
 router.delete(
   "/",

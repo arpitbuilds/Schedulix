@@ -465,7 +465,10 @@ export const getTimetableByTeacher = async (req, res) => {
 
     const timetables = await Timetable.find({
       "data.teacherId": teacherId,
-    });
+    })
+      .populate("data.teacherId", "name")
+      .populate("data.roomId", "name")
+      .populate("data.subjectId", "name code");
 
     if (timetables.length === 0) {
       return res.status(404).json({
@@ -482,7 +485,7 @@ export const getTimetableByTeacher = async (req, res) => {
       classes: t.data.filter(
         (entry) =>
           entry.teacherId &&
-          entry.teacherId.toString() === teacherId.toString()
+          (entry.teacherId._id ? entry.teacherId._id.toString() : entry.teacherId.toString()) === teacherId.toString()
       ),
     }));
 
@@ -560,6 +563,78 @@ export const updateTimetableEntry = async (req, res) => {
     }
   } catch (error) {
     console.error("Error updating timetable entry:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+/* =========================================
+   MOVE / SWAP TIMETABLE ENTRY (DRAG & DROP)
+========================================= */
+export const moveTimetableEntry = async (req, res) => {
+  try {
+    const { timetableId, draggedEntryId, targetDay, targetSlot } = req.body;
+
+    if (!timetableId || !draggedEntryId || !targetDay || targetSlot === undefined) {
+      return res.status(400).json({ success: false, message: "Missing required fields for move operation" });
+    }
+
+    const timetable = await Timetable.findById(timetableId);
+    if (!timetable) {
+      return res.status(404).json({ success: false, message: "Timetable not found" });
+    }
+
+    const sourceEntry = timetable.data.id(draggedEntryId);
+    if (!sourceEntry) {
+      return res.status(404).json({ success: false, message: "Source class entry not found" });
+    }
+
+    // Check if target slot is already occupied by ANOTHER entry in THIS timetable
+    const targetEntry = timetable.data.find(
+      (e) => e.day === targetDay && e.slot === parseInt(targetSlot, 10) && e._id.toString() !== draggedEntryId
+    );
+
+    if (targetEntry) {
+      // SWAP: targetEntry takes sourceEntry's old day/slot
+      const oldSourceDay = sourceEntry.day;
+      const oldSourceSlot = sourceEntry.slot;
+
+      targetEntry.day = oldSourceDay;
+      targetEntry.slot = oldSourceSlot;
+    }
+
+    // Update sourceEntry to new day/slot
+    sourceEntry.day = targetDay;
+    sourceEntry.slot = parseInt(targetSlot, 10);
+
+    await timetable.save();
+
+    // Populate the returned timetable so the frontend can render it immediately correctly
+    const populatedTimetable = await Timetable.findById(timetable._id)
+      .populate("data.teacherId", "name")
+      .populate("data.roomId", "name")
+      .populate("data.subjectId", "name code");
+
+    res.json({
+      success: true,
+      message: targetEntry ? "Classes swapped successfully" : "Class moved successfully",
+      data: populatedTimetable,
+    });
+
+    // Fire live socket
+    const io = req.app.get("socketio");
+    if (io) {
+      io.emit("timetable_updated", {
+        department: timetable.department,
+        semester: timetable.semester,
+        action: "move",
+      });
+    }
+  } catch (error) {
+    console.error("Error moving timetable entry:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",

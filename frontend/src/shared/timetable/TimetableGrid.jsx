@@ -98,10 +98,12 @@ import Button from "../ui/Button.jsx";
 import { Card, CardContent, CardHeader } from "../ui/Card.jsx";
 import { displayRef, groupEntries } from "./timetableUtils.js";
 
-function Cell({ entry, isBreak }) {
+function Cell({ entry, isBreak, day, slot, isEditable, onMove }) {
   if (isBreak) {
     return (
-      <div className="h-full min-h-[110px] rounded-2xl border border-dashed border-amber-200 bg-amber-50 p-3 text-center shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+      <div 
+        className={`h-full min-h-[110px] rounded-2xl border border-dashed border-amber-200 bg-amber-50 p-3 text-center shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] ${isEditable ? 'opacity-50' : ''}`}
+      >
         <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">
           Break
         </div>
@@ -114,16 +116,54 @@ function Cell({ entry, isBreak }) {
 
   if (!entry) {
     return (
-      <div className="h-full min-h-[110px] rounded-2xl border border-white/10 bg-zinc-950 p-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
-        <div className="flex h-full items-center justify-center text-xs font-medium text-slate-400">
-          Empty
-        </div>
+      <div 
+        className={`h-full min-h-[110px] rounded-2xl border border-white/10 bg-zinc-950 p-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] flex items-center justify-center text-xs font-medium text-slate-400 ${isEditable ? 'border-dashed border-white/20 hover:bg-zinc-900/80 transition-colors' : ''}`}
+        onDragOver={(e) => {
+          if (isEditable) {
+            e.preventDefault(); // allow drop
+          }
+        }}
+        onDrop={(e) => {
+          if (isEditable) {
+            e.preventDefault();
+            const sourceEntryId = e.dataTransfer.getData("text/plain");
+            if (sourceEntryId) {
+              onMove(sourceEntryId, day, slot);
+            }
+          }
+        }}
+      >
+        {isEditable ? "Drop Here" : "Empty"}
       </div>
     );
   }
 
   return (
-    <div className="h-full min-h-[110px] rounded-2xl border border-white/10 bg-zinc-900 p-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.6)]">
+    <div 
+      className={`h-full min-h-[110px] rounded-2xl border border-white/10 bg-zinc-900 p-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.6)] ${isEditable ? 'cursor-grab active:cursor-grabbing border-l-4 border-l-indigo-500' : ''}`}
+      draggable={isEditable}
+      onDragStart={(e) => {
+        if (isEditable) {
+          e.dataTransfer.setData("text/plain", entry._id);
+          e.dataTransfer.effectAllowed = "move";
+        }
+      }}
+      onDragOver={(e) => {
+        if (isEditable) {
+          e.preventDefault(); // allow swap
+        }
+      }}
+      onDrop={(e) => {
+        if (isEditable) {
+          e.preventDefault();
+          const sourceEntryId = e.dataTransfer.getData("text/plain");
+          if (sourceEntryId && sourceEntryId !== entry._id) {
+            // Swap logic
+            onMove(sourceEntryId, day, slot);
+          }
+        }
+      }}
+    >
       <div className="inline-flex rounded-full bg-indigo-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
         Scheduled
       </div>
@@ -154,6 +194,8 @@ export default function TimetableGrid({
   breakSlots = [],
   entries,
   showMeta = false,
+  isEditable = false,
+  onMove = () => {},
 }) {
   const entryMap = useMemo(() => groupEntries(entries), [entries]);
   const gridRef = useRef(null);
@@ -322,6 +364,10 @@ export default function TimetableGrid({
                       key={`${day}-${slot}`}
                       entry={entry}
                       isBreak={isBreak}
+                      day={day}
+                      slot={slot}
+                      isEditable={isEditable}
+                      onMove={onMove}
                     />
                   );
                 })}

@@ -1,0 +1,30 @@
+
+> schedio-frontend@1.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 443 modules transformed.
+
+[31m✗[39m Build failed in 4.92s
+[31merror during build:
+[31msrc/pages/admin/AdminUsersPage.jsx (3:7): "default" is not exported by "src/shared/api/http.js", imported by "src/pages/admin/AdminUsersPage.jsx".[31m
+file: [36mD:/Schedio-main/frontend/src/pages/admin/AdminUsersPage.jsx:3:7[31m
+[33m
+1: import React, { useState } from "react";
+2: import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+3: import http from "../../shared/api/http";
+          ^
+4: import { useToast } from "../../shared/ui/toast/ToastContext";
+5: import Table from "../../shared/ui/Table";
+[31m
+    at getRollupError (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at error (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/parseAst.js:398:42)
+    at Module.error (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/node-entry.js:17040:16)
+    at Module.traceVariable (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/node-entry.js:17452:29)
+    at ModuleScope.findVariable (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/node-entry.js:15070:39)
+    at FunctionScope.findVariable (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at FunctionBodyScope.findVariable (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at ReturnValueScope.findVariable (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at FunctionBodyScope.findVariable (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5673:38)
+    at MemberExpression.bind (file:///D:/Schedio-main/frontend/node_modules/rollup/dist/es/shared/node-entry.js:7392:49)[39m

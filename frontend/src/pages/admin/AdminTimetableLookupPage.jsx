@@ -524,6 +524,7 @@ import {
   listTeachers,
   listSubjects,
   listRooms,
+  moveTimetableEntry,
 } from "../../features/admin/adminApi.js";
 import { useToast } from "../../shared/ui/toast/ToastContext.jsx";
 
@@ -586,7 +587,7 @@ export default function AdminTimetableLookupPage() {
         setLookupResult(res.data);
       }
     }
-  });
+  }, { suppressToast: true });
 
   const params = useMemo(
     () => ({
@@ -630,6 +631,38 @@ export default function AdminTimetableLookupPage() {
         message: apiErrorMessage(e),
       }),
   });
+
+  const moveMut = useMutation({
+    mutationFn: (body) => moveTimetableEntry(body),
+    onSuccess: async () => {
+      push({
+        variant: "success",
+        title: "Success",
+        message: "Timetable updated successfully",
+      });
+      // WebSockets will handle the real-time refresh automatically,
+      // but we can manually refetch just in case:
+      if (q.isSuccess) {
+        setLookupResult((await q.refetch()).data);
+      }
+    },
+    onError: (e) =>
+      push({
+        variant: "error",
+        title: "Move Failed",
+        message: apiErrorMessage(e),
+      }),
+  });
+
+  const handleTimetableMove = (draggedEntryId, targetDay, targetSlot) => {
+    if (!tt?._id) return;
+    moveMut.mutate({
+      timetableId: tt._id,
+      draggedEntryId,
+      targetDay,
+      targetSlot,
+    });
+  };
 
   async function onSearch(e) {
     e.preventDefault();
@@ -943,6 +976,8 @@ export default function AdminTimetableLookupPage() {
                 breakSlots={hydratedTimetable.breakSlots || []}
                 entries={hydratedTimetable.data || []}
                 showMeta
+                isEditable={true}
+                onMove={handleTimetableMove}
               />
             </CardContent>
           </Card>

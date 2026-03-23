@@ -332,6 +332,7 @@ import TimetableGrid from "../../shared/timetable/TimetableGrid.jsx";
 import {
   generateTimetable,
   getTimetable,
+  moveTimetableEntry,
 } from "../../features/admin/adminApi.js";
 import { useToast } from "../../shared/ui/toast/ToastContext.jsx";
 
@@ -430,6 +431,35 @@ export default function AdminGenerateTimetablePage() {
   }
 
   const tt = generatedTimetable || lookup.data || null;
+
+  const moveMut = useMutation({
+    mutationFn: (body) => moveTimetableEntry(body),
+    onSuccess: async () => {
+      push({
+        variant: "success",
+        title: "Success",
+        message: "Timetable updated successfully",
+      });
+      // Refresh the view
+      onLoadExisting();
+    },
+    onError: (e) =>
+      push({
+        variant: "error",
+        title: "Move Failed",
+        message: apiErrorMessage(e),
+      }),
+  });
+
+  const handleTimetableMove = (draggedEntryId, targetDay, targetSlot) => {
+    if (!tt?._id) return;
+    moveMut.mutate({
+      timetableId: tt._id,
+      draggedEntryId,
+      targetDay,
+      targetSlot,
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -554,7 +584,7 @@ export default function AdminGenerateTimetablePage() {
             </div>
 
             <div className="md:col-span-2 xl:col-span-4 flex flex-wrap items-center gap-2 pt-1">
-              <Button type="submit" disabled={gen.isPending}>
+              <Button type="submit" disabled={gen.isPending || lookup.isFetching}>
                 {gen.isPending ? "Generating..." : "Generate Timetable"}
               </Button>
 
@@ -562,9 +592,9 @@ export default function AdminGenerateTimetablePage() {
                 variant="secondary"
                 type="button"
                 onClick={onLoadExisting}
-                disabled={lookup.isFetching}
+                disabled={gen.isPending || lookup.isFetching}
               >
-                {lookup.isFetching ? "Loading..." : "Load Existing"}
+                {lookup.isFetching && !gen.isPending ? "Loading..." : "Load Existing"}
               </Button>
             </div>
 
@@ -610,6 +640,8 @@ export default function AdminGenerateTimetablePage() {
               breakSlots={tt.breakSlots || []}
               entries={tt.data || []}
               showMeta
+              isEditable={true}
+              onMove={handleTimetableMove}
             />
           </CardContent>
         </Card>

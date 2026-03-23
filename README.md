@@ -15,6 +15,7 @@
 * **Role-Based Access Control (RBAC)**: Secure routing locked behind `JWT` authentication. Only verified administrators can access the workspace.
 * **Master Entity Management**: Full CRUD (Create, Read, Update, Delete) dashboards for managing Teachers, Subjects, Rooms, and System Users.
 * **One-Click Generation**: AI triggers generate the schedule quietly in the background, gracefully handling user errors like insufficient datasets with detailed toasts.
+* **Interactive Drag-&-Drop**: Native HTML5 Drag and Drop architecture enables Admins to physically pick up and seamlessly swap or move class blocks straight from the grid UI.
 * **Timetable Lookup & Deletion**: Instantly search for generated timetables and wipe them from the database globally if revisions are needed.
 
 ### ⚡ Live Auto-Sync WebSockets
@@ -67,4 +68,11 @@ pip install -r requirements.txt
 cd ../frontend && npm install
 ```
 5. **(Optional)** Seed the database with dummy initial data: `cd backend && node seed.js`
-6. Run both development servers: `cd backend && npm run dev` / `cd frontend && npm run dev`.
+6. Run both development servers independently: `cd backend && npm run dev` / `cd frontend && npm run dev`.
+
+## 🌍 Production Full-Stack Build
+Schedulix supports a native, unified local deployment where Node seamlessly serves the minified React Single-Page Application:
+1. Ensure `.env` specifies `SERVE_STATIC=true` in `/backend`.
+2. Build the Vite Frontend: `cd frontend && npm run build`
+3. Launch via Node: `cd backend && npm run dev`
+4. Access the full application on `http://localhost:5001`.
