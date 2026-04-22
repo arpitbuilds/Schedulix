@@ -138,9 +138,10 @@ export default function LoginPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-translate-x-1"><path d="m15 18-6-6 6-6"/></svg>
                     Return to Student Timetables
                   </Link>
-                    <p className="text-xs font-medium tracking-wider text-zinc-500 uppercase">
-    Made by Arpit
-  </p>
+  <p className="mt-4 block text-sm font-medium text-zinc-300">
+  Made by Arpit 💻
+</p>
+
                 </div>
               </form>
             </CardContent>
