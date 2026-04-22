@@ -139,7 +139,7 @@ export default function LoginPage() {
                     Return to Student Timetables
                   </Link>
   <p className="mt-4 block text-sm font-medium text-zinc-300">
-  Made by Arpit 💻
+  Made by Arpit
 </p>
 
                 </div>
