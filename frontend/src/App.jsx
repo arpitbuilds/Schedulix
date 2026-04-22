@@ -40,6 +40,12 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+         {/* Fixed Watermark in Bottom Right Corner */}
+      <div className="fixed bottom-4 right-5 z-50 pointer-events-none rounded-full bg-zinc-900/50 px-3 py-1.5 backdrop-blur-sm shadow-sm border border-white/5">
+        <p className="text-xs font-medium tracking-wide text-zinc-300">
+          Made by Arpit 
+        </p>
+      </div>
     </div>
   );
 }
